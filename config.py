@@ -7,3 +7,4 @@ class Config:
         "DATABASE_URL"
     ) or "sqlite:///" + os.path.join(basedir, "db.sqlite")
       UPLOAD_FOLDER = os.path.join(basedir, 'storage')
+      

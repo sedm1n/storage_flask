@@ -7,7 +7,7 @@ from app import app, db, auth
 from app.models import FileHash, User
 
 
-
+@auth.verify_password
 def verify_password(username, password):
     """
     Verify the username and password for authentication.
@@ -21,12 +21,13 @@ def verify_password(username, password):
     """
     
     user = User.query.filter_by(username=username).first()
-    
-    
+    app.logger.debug(user.username)
+    app.logger.debug(user.check_password(password))
+   
     if not user or not user.check_password(password):
         return False
     
-    
+    app.logger.info(f"User {user.username} authenticated successfully")
     return user
 
 def get_file_path(file_hash: str) -> str:
@@ -41,6 +42,7 @@ def get_file_path(file_hash: str) -> str:
     """
 
     subdir = file_hash[:2]
+    
     return os.path.join(app.config["UPLOAD_FOLDER"], subdir, file_hash)
 
 
@@ -57,7 +59,7 @@ def upload_file() -> Tuple[Response, int]:
         return jsonify({"message": "No file part"}), 400
 
     file = request.files["file"]
-
+    app.logger.debug(file.name)
     try:
         file_content = file.read()
     except Exception as e:
@@ -67,6 +69,9 @@ def upload_file() -> Tuple[Response, int]:
     file_path = get_file_path(file_hash=file_hash)
     dir_path  = os.path.dirname(file_path)
     
+    app.logger.debug(file_path)
+    app.logger.debug(dir_path)
+
     try:
         os.makedirs(dir_path, exist_ok=True)
     except Exception as e:
@@ -75,14 +80,18 @@ def upload_file() -> Tuple[Response, int]:
     try:
         with open(file_path, "wb") as f:
             f.write(file_content)
+        
     except Exception as e:
+        app.logger.exception(str(e))
         return jsonify({"message": "Error writing file: {}".format(str(e))}), 500
 
     try:
         data = FileHash(file_hash=file_hash, user=auth.current_user())
         db.session.add(data)
         db.session.commit()
+        app.logger.info("File added to database")
     except Exception as e:
+        app.logger.exception(str(e))
         return jsonify({"message": "Error saving to database: {}".format(str(e))}), 500
 
     return jsonify({"File added successfully, hash": file_hash}), 201
