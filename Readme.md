@@ -26,14 +26,14 @@ This project implements a file storage system using Flask, allowing authenticate
 
 Create and activate a virtual environment:
 
-```bash
+``` bash
 
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 ```
 Install the required packages:
 
-```bash
+``` bash
 
 pip install -r requirements.txt
 ```
@@ -41,7 +41,7 @@ pip install -r requirements.txt
 Rename the example environment configuration file:
 
 
-```bash
+``` bash
 
 mv example.flaskenv .flaskenv
 ```
@@ -49,7 +49,7 @@ mv example.flaskenv .flaskenv
 Database Setup
 Initialize and apply migrations to set up the database:
 
-```bash
+``` bash
 
 flask db init
 flask db migrate
@@ -61,7 +61,7 @@ By default, the application uses SQLite for the database.
 Running the Application
 To start the application in development mode, use:
 
-```bash
+``` bash
 
 flask run
 ```
@@ -71,7 +71,7 @@ Usage
 Uploading Files
 To upload a file, use the following curl command:
 
-```bash
+``` bash
 
 curl -u username:password -F "file=@filename" http://127.0.0.1:5000/upload
 ```
@@ -83,7 +83,7 @@ Files can be downloaded by accessing the URL http://127.0.0.1:5000/download/<fil
 Deleting Files
 To delete a file, use the following curl command:
 
-```bash
+``` bash
 curl -u username:password -X DELETE http://127.0.0.1:5000/delete/<filehash>
 ```
 
