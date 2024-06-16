@@ -1,7 +1,7 @@
 import hashlib
 import os
 from typing import Tuple
-import sqlalchemy as sa
+from sqlalchemy.exc import SQLAlchemyError
 from flask import  Response, jsonify, request, send_file
 from app import app, db, auth
 from app.models import FileHash, User
@@ -74,14 +74,14 @@ def upload_file() -> Tuple[Response, int]:
 
     try:
         os.makedirs(dir_path, exist_ok=True)
-    except Exception as e:
+    except OSError as e:
         return jsonify({"message": "Error creating directory: {}".format(str(e))}), 500
 
     try:
         with open(file_path, "wb") as f:
             f.write(file_content)
         
-    except Exception as e:
+    except OSError as e:
         app.logger.exception(str(e))
         return jsonify({"message": "Error writing file: {}".format(str(e))}), 500
 
@@ -90,7 +90,7 @@ def upload_file() -> Tuple[Response, int]:
         db.session.add(data)
         db.session.commit()
         app.logger.info("File added to database")
-    except Exception as e:
+    except SQLAlchemyError as e:
         app.logger.exception(str(e))
         return jsonify({"message": "Error saving to database: {}".format(str(e))}), 500
 
@@ -141,7 +141,7 @@ def delete_file(file_hash: str) -> Tuple[Response, int]:
 
     try:
         os.remove(file_path)
-    except Exception as e:
+    except OSError as e:
         app.logger.exception(str(e))
         return jsonify({"message": "Error deleting file: {}".format(str(e))}), 500
     
@@ -150,7 +150,7 @@ def delete_file(file_hash: str) -> Tuple[Response, int]:
         db.session.commit()
         app.logger.info("File deleted from database")
         return jsonify({"message": "File deleted"}), 200
-    except Exception as e:
+    except SQLAlchemyError as e:
         app.logger.exception(str(e))
         return jsonify({"message": "Error deleting from database: {}".format(str(e))}), 500
     
