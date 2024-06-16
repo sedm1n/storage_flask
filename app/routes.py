@@ -142,14 +142,16 @@ def delete_file(file_hash: str) -> Tuple[Response, int]:
     try:
         os.remove(file_path)
     except Exception as e:
+        app.logger.exception(str(e))
         return jsonify({"message": "Error deleting file: {}".format(str(e))}), 500
     
     try:
         db.session.delete(file_record)
         db.session.commit()
-
+        app.logger.info("File deleted from database")
         return jsonify({"message": "File deleted"}), 200
     except Exception as e:
+        app.logger.exception(str(e))
         return jsonify({"message": "Error deleting from database: {}".format(str(e))}), 500
     
 
