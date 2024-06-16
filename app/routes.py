@@ -94,7 +94,7 @@ def upload_file() -> Tuple[Response, int]:
         app.logger.exception(str(e))
         return jsonify({"message": "Error saving to database: {}".format(str(e))}), 500
 
-    return jsonify({"File added successfully, hash": file_hash}), 201
+    return jsonify({"hash": file_hash}), 201
 
 
 @app.route("/download/<file_hash>", methods=["GET"])

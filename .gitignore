@@ -1,9 +1,11 @@
 __pycache__/
+logs/
 *.py[cod]
 *$py.class
 *.so
 .Python
-
+*.txt
+*.log
 venv/
 venv.bak/
 *.egg
