@@ -7,17 +7,31 @@ from app import app, db, auth
 from app.models import FileHash, User
 
 
-@auth.verify_password
+
 def verify_password(username, password):
+    """
+    Verify the username and password for authentication.
+
+    Args:
+        username (str): The username.
+        password (str): The password.
+
+    Returns:
+        User: The user object if the authentication is successful, False otherwise.
+    """
+    
     user = User.query.filter_by(username=username).first()
+    
+    
     if not user or not user.check_password(password):
         return False
+    
     
     return user
 
 def get_file_path(file_hash: str) -> str:
     """
-    Возвращает путь к файлу в локальном хранилище.
+    Returns the path to the file in local storage.
 
     Args:
         file_hash (str): The hash of the file.
@@ -25,6 +39,7 @@ def get_file_path(file_hash: str) -> str:
     Returns:
         str: The path of the file.
     """
+
     subdir = file_hash[:2]
     return os.path.join(app.config["UPLOAD_FOLDER"], subdir, file_hash)
 
@@ -33,7 +48,7 @@ def get_file_path(file_hash: str) -> str:
 @auth.login_required
 def upload_file() -> Tuple[Response, int]:
     """
-    Загружает файл на сервер.
+    Uploads the file to the server.
 
     Returns:
         Tuple[Response, int]: A tuple containing the response and status code.
@@ -48,10 +63,10 @@ def upload_file() -> Tuple[Response, int]:
     except Exception as e:
         return jsonify({"message": "Error reading file: {}".format(str(e))}), 400
 
-    file_hash = hashlib.sha256(file_content).hexdigest()
-    
+    file_hash = hashlib.sha256(file_content).hexdigest()  
     file_path = get_file_path(file_hash=file_hash)
     dir_path  = os.path.dirname(file_path)
+    
     try:
         os.makedirs(dir_path, exist_ok=True)
     except Exception as e:
@@ -76,7 +91,7 @@ def upload_file() -> Tuple[Response, int]:
 @app.route("/download/<file_hash>", methods=["GET"])
 def download_file(file_hash: str) -> Tuple[Response, int]:
     """
-    Позволяет скачать файл 
+    Downloads the file from the server.
 
     Args:
         file_hash (str): на входе хэш скачиваемого файла.
@@ -96,12 +111,9 @@ def download_file(file_hash: str) -> Tuple[Response, int]:
 @auth.login_required
 def delete_file(file_hash: str) -> Tuple[Response, int]:
     """
-    Удаляет файл найденный в локальном хранилище. Файл удаляется только если он
-      принадлежит текущему авторизованному пользователю.
-    Так же удаляется запись о хэше в базе данных.
-
+    Deletes the file from the server. 
     Args:
-        file_hash (str): На входе хэш удаляемого файла.
+        file_hash (str): Hash of the file to be deleted.
 
     Returns:
         Tuple[Response, int]: A tuple containing the response and status code.

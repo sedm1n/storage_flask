@@ -19,7 +19,7 @@ This project implements a file storage system using Flask, allowing authenticate
 ### Installation
 
 1. Clone the repository:
-   ```bash
+``` bash
    git clone https://github.com/sedm1n/storage_flask.git
    cd storage_flask/
 ```
